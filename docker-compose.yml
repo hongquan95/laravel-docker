@@ -1,0 +1,49 @@
+version: "3.3"
+services:
+  app:
+    build:
+      args:
+        user: top
+        uid: 1000
+      context: ./php-fpm
+      dockerfile: Dockerfile
+    image: php-fpm
+    container_name: top-app
+    restart: unless-stopped
+    working_dir: /var/www/
+    volumes:
+      - ./:/var/www
+    networks:
+      - top
+
+  db:
+    image: mysql:5.7
+    container_name: top-db
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: ${DB_DATABASE}
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+      MYSQL_USER: ${DB_USERNAME}
+      SERVICE_TAGS: dev
+      SERVICE_NAME: mysql
+    volumes:
+      - ./mysql:/docker-entrypoint-initdb.d
+    networks:
+      - top
+
+  nginx:
+    image: nginx:alpine
+    container_name: top-nginx
+    restart: unless-stopped
+    ports:
+      - 8000:80
+    volumes:
+      - ./:/var/www
+      - ./nginx:/etc/nginx/conf.d/
+    networks:
+      - top
+
+networks:
+  top:
+    driver: bridge
