@@ -28,6 +28,9 @@ RUN useradd -G www-data,root -u $uid -d /home/$user $user
 RUN mkdir -p /home/$user/.composer && \
     chown -R $user:$user /home/$user
 
+# Setting custom php.ini
+COPY php.ini /usr/local/etc/php/
+
 # Set working directory
 WORKDIR /var/www
 
