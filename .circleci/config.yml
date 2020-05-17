@@ -8,6 +8,12 @@ jobs:
     docker:
       # Specify the version you desire here
       - image: circleci/php:7.4-node-browsers
+      - image: circleci/mysql:5.7
+        environment:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: test
+          MYSQL_USER: test
+          MYSQL_PASSWORD: root
 
     steps:
       - checkout
@@ -17,6 +23,7 @@ jobs:
           command: |
             sudo apt update
             sudo docker-php-ext-install zip
+            sudo docker-php-ext-install pdo_mysql
 
       # Download and cache dependencies
       - restore_cache:
@@ -45,13 +52,7 @@ jobs:
       - run:
           name: "Create database and run migration"
           command: |
-            touch database/database.sqlite
-            php artisan migrate --env=testing
-
-      - run:
-          name: "Generate Passport encryption keys"
-          command: php artisan passport:install
-
+            php artisan migrate
       # run tests with phpunit
       - run:
           name: "Run Tests"
