@@ -57,3 +57,25 @@ jobs:
       - run:
           name: "Run Tests"
           command: ./vendor/bin/phpunit
+  deploy:
+    docker:
+      - image: circleci/php:7.2-browsers
+    working_directory: ~/laravel
+    steps:
+      - checkout
+      - add_ssh_keys:
+          fingerprints:
+            - "96:0a:03:a7:b6:8b:8c:a4:e7:0d:14:da:c7:6e:5b:c8"
+      - run:
+        name: Install Deployer
+        command: |
+          find . -type f -not -path "./vendor/*" -exec chmod 664 {} \;
+          find . -type d -not -path "./vendor/*" -exec chmod 775 {} \;
+      - run:
+          name: Deploy
+          filters:
+            branches:
+              only: develop
+          command: |
+          - php artisan deploy test_ci.taro.swallowshub.net -s upload
+
