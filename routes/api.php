@@ -14,6 +14,36 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware('auth:api')->get('/user', function (Request $request) {
-    return $request->user();
+// Route::middleware('auth:api')->get('/user', function (Request $request) {
+//     return $request->user();
+// });
+
+Route::group([
+    'prefix' => 'auth',
+    'as' => 'user.'
+], function () {
+    Route::post('login', 'AuthController@login')->name('login');
+    Route::post('signup', 'AuthController@signup')->name('sigup');
+
+    Route::group([
+        'middleware' => 'auth:api'
+    ], function () {
+        Route::get('logout', 'AuthController@logout')->name('logout');
+        Route::get('user', 'AuthController@user')->name('user');
+    });
+});
+
+Route::group([
+    'prefix' => 'admin-auth',
+    'as' => 'admin.'
+], function () {
+    Route::post('login', 'AdminAuthController@login')->name('login');
+    Route::post('signup', 'AdminAuthController@signup')->name('sigup');
+
+    Route::group([
+        'middleware' => 'auth:admin'
+    ], function () {
+        Route::get('logout', 'AdminAuthController@logout')->name('logout');
+        Route::get('user', 'AdminAuthController@user')->name('user');
+    });
 });
